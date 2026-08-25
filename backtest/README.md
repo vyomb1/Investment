@@ -16,6 +16,8 @@ Two more no-peeking rules: signals form at a quarter-end **as-of date** using on
 
 **ASX (later leg, stub):** Norgate for prices and historical index/universe membership (that's all it carries) paired with EODHD fundamentals applied with explicit reporting lags. Not implemented yet — the config carries the slot.
 
+> **Status (25 Aug 2026):** parked under Vyom's zero-cost directive — no paid data until the system has produced money. There is **no free substitute**: free datasets delete the dead and overwrite the past, and a survivor-biased "backtest" would poison calibration, so this waits for Sharadar rather than running dirty. The harness and its 16 offline tests are done; enabling is the two steps below whenever the directive lifts.
+
 ## Enabling access (two steps, once purchased)
 
 1. In the Claude Code environment settings, add env var **`NASDAQ_DATA_LINK_API_KEY`** with your key.

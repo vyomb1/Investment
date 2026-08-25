@@ -38,12 +38,16 @@
 
 ## Connectors (§14)
 
+> **Zero-cost directive (Vyom, 25 Aug 2026, versioned edit):** nothing with a price tag until the system has produced money. Every paid connector below is **deferred until profitable**, regardless of its spec timing; free alternatives run in their place with the coverage-class downgrade that implies, declared honestly per §2.1. This note supersedes the "When" column until Vyom lifts it in writing.
+
 | Connector | Cost model | When | Purpose | Status |
 | --- | --- | --- | --- | --- |
-| EDGAR MCP | free | **now** | US filings; Form 4 clusters (channel 2) | adopt now |
-| Bigdata.com | pay-as-you-go | **now** | trigger phrases (channel 3) | adopt now |
-| EODHD | subscription | **~cycle 3**, when /sweep outgrows free data | screens (channels 2, 4); ASX Appendix 3Y | scheduled (3.2) |
-| Sharadar / Norgate | subscription | **month 2–3+, only if the point-in-time backtest is greenlit** | gate backtest | decision pending (open item 3) |
+| EDGAR (data.sec.gov + efts full-text search) | free | **now** | US filings; Form 4 clusters (channel 2); 8-K streams (channels 3, 5); 13D (channel 7) | adopt now |
+| ASX announcements + Market Index rebalance pages | free | **now** | ASX disclosures; channel 1 enumerated deletion lists | adopt now |
+| Stooq / yfinance | free | **now** | price history for alerts and marks (not PIT-clean; never backtest input) | adopt now |
+| Bigdata.com | pay-as-you-go | ~~now~~ **deferred until profitable** | trigger phrases (channel 3) — free substitute: EDGAR full-text search + open-web scout at C3 | deferred |
+| EODHD | subscription | ~~cycle 3~~ **deferred until profitable** | screens (channels 2, 4); ASX Appendix 3Y | deferred |
+| Sharadar / Norgate | subscription | ~~month 2–3~~ **deferred until profitable** | gate backtest (harness ready in [`../backtest/`](../backtest/)) | deferred; **no free substitute exists** — free datasets delete the dead and overwrite the past, and a survivor-biased backtest would poison calibration, so the backtest waits rather than runs dirty |
 | FactSet | — | never | — | **skip** — enterprise-gated |
 | S&P / Kensho | — | never | — | **skip** — enterprise-gated |
 | Daloopa MCP | — | never | — | **skip** — paid-tier only |

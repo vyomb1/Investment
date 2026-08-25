@@ -6,7 +6,8 @@ You don't run this in normal Claude chat. You run it in **Claude Code**, pointed
 
 1. **Open Claude Code on the web:** go to **claude.ai/code** in your browser and sign in. (This repo is already connected to your account — no install needed. The desktop app or terminal CLI work the same way if you prefer them later.)
 2. **Start a session on this repo:** click **New session**, choose the **Investment** repository. That's it — the Constitution, the rules, and the slash commands load automatically.
-3. **Fix the network policy** (so research can reach real filings): in the session's **environment settings**, set the network policy to allow at least `sec.gov`, `efts.sec.gov`, and `asx.com.au` — or choose the permissive/"trusted" policy. Without this, evidence lock is blocked and runs are capped at C3.
+3. **Fix the network policy** (so research can reach real filings): in the session's **environment settings**, set the network policy to allow at least `sec.gov`, `efts.sec.gov`, `data.sec.gov`, and `asx.com.au` — or choose the permissive/"trusted" policy. Without this, evidence lock is blocked and runs are capped at C3.
+   **Gotcha:** environment changes (network policy, env vars) only apply to **newly started sessions** — a session that's already running keeps the settings it booted with. Changed something? Start a new session.
 4. **Create the ledger sheet:** make a Google Sheet called anything you like, with two tabs:
    - **inbox** — row 1 = the header line from [`ledger/inbox.csv`](ledger/inbox.csv)
    - **ledger** — row 1 = the header line from [`ledger/ledger.csv`](ledger/ledger.csv)
