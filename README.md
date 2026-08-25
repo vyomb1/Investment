@@ -2,6 +2,7 @@
 
 A research operating system for one investor. It widens the funnel, structures evidence, computes, and attacks theses — and **executes nothing**. Vyom writes every thesis, sets every size, and places every buy and sell by hand at the broker. There is no execution path in this system, by design.
 
+- **How to run it (start here):** [`HOW-TO-RUN.md`](HOW-TO-RUN.md)
 - **Canonical spec:** [`spec/investment-os-v3.2-master-spec.md`](spec/investment-os-v3.2-master-spec.md) (v3.2.0, 25 Aug 2026)
 - **How the system is built:** [`ARCHITECTURE.md`](ARCHITECTURE.md)
 - **The 14 rules every agent runs under:** [`CONSTITUTION.md`](CONSTITUTION.md) — paste verbatim as the Claude Project instructions
