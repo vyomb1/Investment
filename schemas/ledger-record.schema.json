@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/ledger-record.schema.json",
+  "title": "Ledger Record",
+  "description": "One ledger row — spec §10 verbatim field list: {ticker, date, stage, route(A/B/Peak/lens), verdict, confidence(0–1), key_evidence:[{claim,label,source,as_of}], falsifiers:[{observable,threshold,check_date}], size_or_shadow, source_channel, coverage_class, system_version, skill_versions, model_ids, next_check} plus outcome columns per position/shadow entry (marks at 6/12/24/36 months vs benchmark, reason-match). Every stage emits one record; nothing counts unless logged with versions attached — unlogged = doesn't exist (Constitution rule 11). Validation runs in code before handoff; the record is written only by the separate insert-only logger, which holds no web tools (week one: Vyom pasting the validated JSON himself). Research contexts never possess the write key (spec §10, §12). See spec/investment-os-v3.2-master-spec.md §10.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ticker",
+    "date",
+    "stage",
+    "route",
+    "verdict",
+    "confidence",
+    "key_evidence",
+    "falsifiers",
+    "size_or_shadow",
+    "source_channel",
+    "coverage_class",
+    "system_version",
+    "skill_versions",
+    "model_ids",
+    "next_check",
+    "outcome"
+  ],
+  "properties": {
+    "ticker": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Ticker this record concerns, matching the inbox row that supplied it."
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date this record was emitted, ISO 8601."
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "discovery",
+        "verify",
+        "triage",
+        "evidence_lock",
+        "underwrite",
+        "redteam",
+        "synthesis",
+        "portfolio_gate",
+        "log",
+        "maintenance",
+        "results",
+        "calibrate"
+      ],
+      "description": "Pipeline stage that emitted this record (spec §4, legacy IDs in brackets): discovery [S1A], verify [S1B], triage [S2], evidence_lock [S3], underwrite [S4], redteam [S5], synthesis [S6/S9], portfolio_gate [U6], log, maintenance [S16], results [S8], calibrate [S15]."
+    },
+    "route": {
+      "description": "Route at the time of this record (spec §3, §10: route A/B/Peak/lens). null only for records emitted before Triage [S2] has assigned a route (e.g. discovery capture, verify-stage kills).",
+      "anyOf": [
+        { "$ref": "#/$defs/route" },
+        { "type": "null" }
+      ]
+    },
+    "verdict": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The stage's verdict in that stage's own vocabulary (e.g. route/kill at triage; hold/add/exit at maintenance vs pre-registered criteria; held/failed at results). Spec §10 fixes the field; each stage's skill defines its values."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Stated confidence in the verdict, 0–1 (spec §10). Pre-registered; scored by Brier in Loop 2 (spec §11) — Vyom's and Claude's confidences are scored separately."
+    },
+    "key_evidence": {
+      "type": "array",
+      "description": "Key evidence behind the verdict: {claim, label, source, as_of} per spec §10, carrying the §2 labelling discipline into the ledger. May be empty only for stages with no evidentiary content yet (e.g. discovery capture).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim", "label", "source", "as_of"],
+        "properties": {
+          "claim": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The claim, stated plainly; where it comes from a locked evidence pack, prefix or reference the pack claim ID."
+          },
+          "label": {
+            "$ref": "#/$defs/evidence_label"
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Cited source (spec §2.3 source discipline)."
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date",
+            "description": "As-of date of the underlying fact, ISO 8601 (spec §2.4)."
+          }
+        }
+      }
+    },
+    "falsifiers": {
+      "type": "array",
+      "description": "Pre-registered falsifiers: {observable, threshold, check_date} per spec §10. Written by Vyom at synthesis — no position, real or shadow, exists without them (Constitution rule 8). A triggered falsifier forces a logged review within 7 days, before any trade (spec §4 Maintenance; Constitution rule 9). Empty for stages before falsifiers exist.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["observable", "threshold", "check_date"],
+        "properties": {
+          "observable": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What is watched — a specific, checkable observable (e.g. cash conversion, leverage, a permit's continuity)."
+          },
+          "threshold": {
+            "type": ["string", "number"],
+            "description": "The pre-registered level or condition that triggers review; a string when units or wording matter (e.g. '85% cash conversion'), a number when bare."
+          },
+          "check_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date the observable is next checked, ISO 8601."
+          }
+        }
+      }
+    },
+    "size_or_shadow": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Position size if entered — set by Vyom alone, within the §9 caps, before entry — or a shadow-book marker for names logged unbought (spec §10 shadow book rule: every name surviving the full pipeline is logged, bought or not; target ≥20 scored decisions/year). This field records Vyom's decision; the system never computes or triggers an order."
+    },
+    "source_channel": {
+      "$ref": "#/$defs/source_channel"
+    },
+    "coverage_class": {
+      "$ref": "#/$defs/coverage_class"
+    },
+    "system_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Master-spec version that produced this record (e.g. 3.2.0). Ledger rows always record the versions that produced them, so outcome changes are attributable to system changes (spec §16)."
+    },
+    "skill_versions": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^/[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
+        "description": "Version of that skill's SKILL.md as run."
+      },
+      "description": "Map from skill name as registered in spec §14 (e.g. /triage, /lock, /underwrite-b) to the SKILL.md version that ran. Nothing counts unless logged with skill versions attached (Constitution rule 11); Loop 1 reruns on any version change (spec §16)."
+    },
+    "model_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Exact model identifiers that served this record's contexts, recorded verbatim for attribution (spec §10, §16). Tier labels alone (fast/standard/strong) are not sufficient here — the ledger records concrete IDs so that outcome changes remain attributable to model changes."
+    },
+    "next_check": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "Next scheduled check date, ISO 8601 — drives Maintenance [S16] falsifier monitoring and alert setting for the swing (spec §13). null only for terminal records with nothing left to monitor."
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason_match"],
+      "description": "Outcome columns per position/shadow entry (spec §10): mark at 6/12/24/36 months vs benchmark, plus reason-match. Marks are null or omitted until due — the first edge-claim test date is January 2027 (spec §11); until benchmark-adjusted ledger data exists the system's edge is unproven (Constitution rule 12).",
+      "properties": {
+        "mark_6m": {
+          "$ref": "#/$defs/benchmark_mark",
+          "description": "6-month mark vs benchmark; null/omitted until due."
+        },
+        "mark_12m": {
+          "$ref": "#/$defs/benchmark_mark",
+          "description": "12-month mark vs benchmark; null/omitted until due. Also feeds per-channel scoring (spec §5: leads → triage survival → shadow-book entries → 12-month result vs benchmark)."
+        },
+        "mark_24m": {
+          "$ref": "#/$defs/benchmark_mark",
+          "description": "24-month mark vs benchmark; null/omitted until due."
+        },
+        "mark_36m": {
+          "$ref": "#/$defs/benchmark_mark",
+          "description": "36-month mark vs benchmark; null/omitted until due."
+        },
+        "reason_match": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "matched",
+            "right_for_wrong_reason",
+            "failed_for_stated_reason",
+            "failed_for_other_reason"
+          ],
+          "description": "Did it succeed/fail for the pre-registered reason (spec §10)? pending = not yet resolvable; matched = succeeded for the stated reason; right_for_wrong_reason = a right answer for the wrong reason — scores as luck; failed_for_stated_reason = the pre-registered risk killed it; failed_for_other_reason = failed for something not pre-registered. Resolved by /results against the pre-registered thesis; audited quarterly in Loop 2 (spec §11)."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "coverage_class": {
+      "type": "string",
+      "enum": ["C0", "C1", "C2", "C3"],
+      "description": "Coverage class declared for the retrieval run (spec §2.1). C0 = user-supplied evidence set; C1 = enumerated universe (full roster/feed, every row processed); C2 = bounded-source harvest — never 'all qualifying companies'; C3 = open-web scout, non-exhaustive sample only, never proof of absence. Dynamic, blocked, paywalled, or truncated sources downgrade the class; more searching never upgrades C2/C3 to C1. All Lane-2 sweeps are C2 unless run against an enumerated feed. Shared enum — identical across all schemas in schemas/; changes only by versioned edit (spec §16)."
+    },
+    "evidence_label": {
+      "type": "string",
+      "enum": ["FACT", "CALC", "EST", "INFERENCE", "NOT_FOUND", "CONFLICT"],
+      "description": "Evidence label (spec §2.2). FACT = cited source; CALC = deterministic from cited inputs, formula shown; EST = analyst assumption, basis and sensitivity shown; INFERENCE = interpretation; NOT_FOUND = acceptable answer (a plausible invented number is not); CONFLICT = credible sources disagree, recency/scope/restatement explained. Shared enum — identical across all schemas in schemas/; changes only by versioned edit (spec §16)."
+    },
+    "route": {
+      "type": "string",
+      "enum": ["A", "B", "Peak", "lens-bio", "lens-exp", "lens-ss", "lens-dx", "lens-fin", "lens-resources", "lens-tech"],
+      "description": "Route assigned by the two-axis router (spec §3). A = Playbook A durability (§6.1); B = Playbook B reversion (§6.2); Peak = elevated/peak earnings — default pass, logged with reason 'peak-earnings cheapness'; lens-* = specialist lenses (§6.3): bio/clinical binary, explorer/developer, special situation/cash shell, distressed capital structure, financials/credit, resources producer (B-core method), pre-profit software/tech. Lenses are method vocabularies, not exclusive routes — this field records the primary route (a bank in a credit panic is B with the Financials lens vocabulary). Shared enum — identical across all schemas in schemas/; changes only by versioned edit (spec §16)."
+    },
+    "source_channel": {
+      "type": "string",
+      "enum": [
+        "lane1_bench_alert",
+        "ch1_index_deletions",
+        "ch2_insider_clusters",
+        "ch3_capital_cycle",
+        "ch4_multiyear_lows",
+        "ch5_special_situations",
+        "ch6_filing_deltas",
+        "ch7_activist_holders",
+        "ch8_tax_loss",
+        "lane3_human",
+        "vyom_direct"
+      ],
+      "description": "Discovery stream that supplied the name (spec §5). Claude never originates tickers from memory — every lead carries this tag. lane1_bench_alert = Lane 1 bench price alert; ch1–ch8 = Lane 2 event-scanner channels (index deletions, insider clusters, capital-cycle signals, multi-year lows ∩ survivability, special situations, filing deltas, activist/substantial holders, tax-loss windows); lane3_human = Lane 3 human flow (forums supply tickers, never theses); vyom_direct = supplied directly by Vyom. Feeds quarterly channel scoring; weights may not change until four quarters of scored data exist. Shared enum — identical across all schemas in schemas/; changes only by versioned edit (spec §16)."
+    },
+    "benchmark_mark": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["position_return", "benchmark_return", "benchmark_name", "as_of"],
+      "description": "One outcome mark vs benchmark (spec §10); null until the mark is due.",
+      "properties": {
+        "position_return": {
+          "type": "number",
+          "description": "Position (or shadow entry) total return over the mark window, decimal fraction (0.12 = +12%). Computed in code, not in prose (Constitution rule 6)."
+        },
+        "benchmark_return": {
+          "type": "number",
+          "description": "Benchmark total return over the same window, decimal fraction."
+        },
+        "benchmark_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Benchmark used for scoring (spec §10): S&P/ASX 300 accumulation (AU sleeve); S&P 500 total return plus an energy/materials index (US sleeve); money-weighted."
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date",
+          "description": "Date the mark was taken, ISO 8601."
+        }
+      }
+    }
+  }
+}

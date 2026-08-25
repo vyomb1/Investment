@@ -27,6 +27,13 @@ This repo **is** Investment OS v3.2. Canonical spec: `spec/investment-os-v3.2-ma
 | Calibration loops & golden set | `calibration/` |
 | Ledger column contract & backfill | `ledger/` |
 
+## Working style (applies to building and maintaining this repo)
+
+1. **Think before coding.** State assumptions explicitly; if multiple interpretations exist, present them rather than picking silently; if a simpler approach exists, say so; if something is unclear, stop and ask.
+2. **Simplicity first.** Minimum change that solves the problem. No speculative features, abstractions for single-use code, unrequested configurability, or error handling for impossible scenarios. If 200 lines could be 50, rewrite.
+3. **Surgical changes.** Touch only what the request requires; don't improve adjacent code or formatting; match existing style; remove only orphans your own change created; mention (don't delete) pre-existing dead code.
+4. **Goal-driven execution.** Turn tasks into verifiable success criteria before starting, and verify before declaring done. Here that means: schema changes validate against real records, skill changes rerun Loop 1 before live use (§16), and every edit traces to a spec section or an explicit request.
+
 ## Version discipline
 
 Every skill's `SKILL.md` carries `version` and `tier` frontmatter. Any change to a skill, prompt, model, or retrieval arrangement = version bump + Loop 1 rerun on affected skills **before** the new version researches anything live (spec §16). Ledger rows record the versions that produced them.

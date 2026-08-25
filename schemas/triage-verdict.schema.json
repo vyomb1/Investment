@@ -1,0 +1,345 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/triage-verdict.schema.json",
+  "title": "Triage Verdict",
+  "description": "Verdict JSON emitted by /triage, covering Verify [S1B] (is the trigger real?) and Triage [S2] (identity, two-axis routing per spec §3, §6.4 trap filters, route-or-kill). Kill rules (spec §4): false trigger, tiny spread, mechanical event at Verify; any §6.4 trap fires, peak earnings, fails own balance sheet, ≤15 min/name at Triage. Claude drafts, Vyom skims; the verdict then flows to /lock or to the kill log — either way it is logged (unlogged = doesn't exist). See spec/investment-os-v3.2-master-spec.md §3, §4, §6.4.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "identity",
+    "trigger_verified",
+    "trigger_note",
+    "verdict",
+    "confidence",
+    "minutes_spent",
+    "coverage_class"
+  ],
+  "properties": {
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "company",
+        "ticker",
+        "exchange",
+        "security_type",
+        "reporting_currency",
+        "price_date",
+        "filing_date",
+        "reporting_period"
+      ],
+      "description": "Identity confirmed first (Constitution rule 4; spec §2.4): company, ticker, exchange, security type, reporting currency, with price date, filing date, and reporting period distinguished explicitly.",
+      "properties": {
+        "company": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Registered company name."
+        },
+        "ticker": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Ticker, matching the inbox row that supplied this name."
+        },
+        "exchange": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Listing exchange (e.g. ASX, NYSE, NASDAQ)."
+        },
+        "security_type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Security type (e.g. ordinary shares, ADR, preference shares, listed option)."
+        },
+        "reporting_currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "Reporting currency, ISO 4217 code (e.g. AUD, USD)."
+        },
+        "price_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date of the price used, ISO 8601. Distinguished explicitly from filing date and reporting period (spec §2.4); tool-verified, never recalled."
+        },
+        "filing_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date the latest relied-upon filing was lodged, ISO 8601 (spec §2.4)."
+        },
+        "reporting_period": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Reporting period the financials cover (e.g. FY2026, H1 FY2026, Q2 2026) — distinct from filing date (spec §2.4)."
+        }
+      }
+    },
+    "trigger_verified": {
+      "type": "boolean",
+      "description": "Verify [S1B]: is the trigger real? false forces verdict = kill (kill rules: false trigger, tiny spread, mechanical event — spec §4); when false, the routing axes and trap filters need not be evaluated."
+    },
+    "trigger_note": {
+      "type": "string",
+      "minLength": 1,
+      "description": "How the trigger was verified or why it was discarded — sources with as-of dates (spec §2.4). Time-sensitive facts are tool-verified, never answered from model memory."
+    },
+    "axis1": {
+      "type": "string",
+      "enum": ["earnings_power", "asset_event_option"],
+      "description": "Axis 1, the setup router — runs first (spec §3): what carries the value here? earnings_power → proceed to Axis 2; asset_event_option → the matching specialist lens owns method and valuation end-to-end and the name never touches Axis 2."
+    },
+    "axis2": {
+      "type": "string",
+      "enum": ["normal_high_return", "depressed", "elevated_peak", "not_applicable"],
+      "description": "Axis 2, the economic router — earnings-power names only (spec §3): are today's earnings roughly normal? normal_high_return → Playbook A (durability); depressed → Playbook B (reversion); elevated_peak → default pass, logged with reason 'peak-earnings cheapness'; not_applicable → reserved for axis1 = asset_event_option."
+    },
+    "route": {
+      "$ref": "#/$defs/route"
+    },
+    "trap_filters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "peak_earnings_cheapness",
+        "melting_ice_cube",
+        "leverage_mirage",
+        "no_unlock"
+      ],
+      "description": "The four §6.4 trap filters, run at triage and again pre-entry. Any fired trap kills the name (spec §4 Triage kill rule).",
+      "properties": {
+        "peak_earnings_cheapness": {
+          "$ref": "#/$defs/trap_check",
+          "description": "§6.4(1) Peak-earnings cheapness → auto-pass: elevated earnings make a stock screen cheapest exactly when forward returns are worst."
+        },
+        "melting_ice_cube": {
+          "$ref": "#/$defs/trap_check",
+          "description": "§6.4(2) Melting ice cube: would volumes recover even if the macro did?"
+        },
+        "leverage_mirage": {
+          "$ref": "#/$defs/trap_check",
+          "description": "§6.4(3) Leverage mirage: the business survives, the equity doesn't."
+        },
+        "no_unlock": {
+          "$ref": "#/$defs/trap_check",
+          "description": "§6.4(4) Value with no unlock: no mechanism, no clock (mandatory for B), no alignment."
+        }
+      }
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["route", "kill"],
+      "description": "route = survives kill checks, proceeds to Evidence lock [S3] on the assigned route; kill = logged with kill_reason. Fewer names, or zero, is always acceptable (spec §2.5)."
+    },
+    "kill_reason": {
+      "type": "string",
+      "enum": [
+        "false_trigger",
+        "tiny_spread",
+        "mechanical_event",
+        "peak_earnings_cheapness",
+        "trap_melting_ice_cube",
+        "trap_leverage_mirage",
+        "trap_no_unlock",
+        "fails_own_balance_sheet",
+        "other"
+      ],
+      "description": "Reason a killed name died. false_trigger / tiny_spread / mechanical_event = Verify [S1B] kill rules; peak_earnings_cheapness = §3 default pass and §6.4(1) auto-pass; trap_melting_ice_cube / trap_leverage_mirage / trap_no_unlock = §6.4(2)–(4); fails_own_balance_sheet = Triage [S2] kill rule (spec §4); other = anything else, explained in trigger_note or the trap notes. Kills are logged with their reason — they are data for channel scoring (§5) and calibration (§11)."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Stated confidence in this verdict, 0–1. Pre-registered; feeds Brier scoring in Loop 2 (spec §11)."
+    },
+    "minutes_spent": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Minutes actually spent on this name. Budget: ≤15 minutes per name (spec §4 Triage row; §13 R&R day 1). Record the true figure even if the budget was exceeded — an overrun is a process fact for calibration, not something to hide."
+    },
+    "coverage_class": {
+      "$ref": "#/$defs/coverage_class"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "trigger_verified": { "const": true } },
+        "required": ["trigger_verified"]
+      },
+      "then": {
+        "required": ["axis1", "axis2", "trap_filters"]
+      }
+    },
+    {
+      "if": {
+        "properties": { "trigger_verified": { "const": false } },
+        "required": ["trigger_verified"]
+      },
+      "then": {
+        "properties": { "verdict": { "const": "kill" } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "axis1": { "const": "earnings_power" } },
+        "required": ["axis1"]
+      },
+      "then": {
+        "properties": {
+          "axis2": { "enum": ["normal_high_return", "depressed", "elevated_peak"] }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "axis1": { "const": "asset_event_option" } },
+        "required": ["axis1"]
+      },
+      "then": {
+        "properties": {
+          "axis2": { "const": "not_applicable" },
+          "route": {
+            "enum": ["lens-bio", "lens-exp", "lens-ss", "lens-dx", "lens-fin", "lens-resources", "lens-tech"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "axis2": { "const": "elevated_peak" } },
+        "required": ["axis2"]
+      },
+      "then": {
+        "properties": { "verdict": { "const": "kill" } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "verdict": { "const": "route" } },
+        "required": ["verdict"]
+      },
+      "then": {
+        "required": ["route"]
+      }
+    },
+    {
+      "if": {
+        "properties": { "verdict": { "const": "kill" } },
+        "required": ["verdict"]
+      },
+      "then": {
+        "required": ["kill_reason"]
+      }
+    },
+    {
+      "if": {
+        "required": ["trap_filters"],
+        "properties": {
+          "trap_filters": {
+            "required": ["peak_earnings_cheapness"],
+            "properties": {
+              "peak_earnings_cheapness": {
+                "required": ["fired"],
+                "properties": { "fired": { "const": true } }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": { "verdict": { "const": "kill" } }
+      }
+    },
+    {
+      "if": {
+        "required": ["trap_filters"],
+        "properties": {
+          "trap_filters": {
+            "required": ["melting_ice_cube"],
+            "properties": {
+              "melting_ice_cube": {
+                "required": ["fired"],
+                "properties": { "fired": { "const": true } }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": { "verdict": { "const": "kill" } }
+      }
+    },
+    {
+      "if": {
+        "required": ["trap_filters"],
+        "properties": {
+          "trap_filters": {
+            "required": ["leverage_mirage"],
+            "properties": {
+              "leverage_mirage": {
+                "required": ["fired"],
+                "properties": { "fired": { "const": true } }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": { "verdict": { "const": "kill" } }
+      }
+    },
+    {
+      "if": {
+        "required": ["trap_filters"],
+        "properties": {
+          "trap_filters": {
+            "required": ["no_unlock"],
+            "properties": {
+              "no_unlock": {
+                "required": ["fired"],
+                "properties": { "fired": { "const": true } }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": { "verdict": { "const": "kill" } }
+      }
+    }
+  ],
+  "$defs": {
+    "coverage_class": {
+      "type": "string",
+      "enum": ["C0", "C1", "C2", "C3"],
+      "description": "Coverage class declared for the retrieval run (spec §2.1). C0 = user-supplied evidence set; C1 = enumerated universe (full roster/feed, every row processed); C2 = bounded-source harvest — never 'all qualifying companies'; C3 = open-web scout, non-exhaustive sample only, never proof of absence. Dynamic, blocked, paywalled, or truncated sources downgrade the class; more searching never upgrades C2/C3 to C1. All Lane-2 sweeps are C2 unless run against an enumerated feed. Shared enum — identical across all schemas in schemas/; changes only by versioned edit (spec §16)."
+    },
+    "route": {
+      "type": "string",
+      "enum": ["A", "B", "Peak", "lens-bio", "lens-exp", "lens-ss", "lens-dx", "lens-fin", "lens-resources", "lens-tech"],
+      "description": "Route assigned by the two-axis router (spec §3). A = Playbook A durability (§6.1); B = Playbook B reversion (§6.2); Peak = elevated/peak earnings — default pass, logged with reason 'peak-earnings cheapness'; lens-* = specialist lenses (§6.3): bio/clinical binary, explorer/developer, special situation/cash shell, distressed capital structure, financials/credit, resources producer (B-core method), pre-profit software/tech. Lenses are method vocabularies, not exclusive routes — this field records the primary route (a bank in a credit panic is B with the Financials lens vocabulary). Shared enum — identical across all schemas in schemas/; changes only by versioned edit (spec §16)."
+    },
+    "trap_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fired"],
+      "properties": {
+        "fired": {
+          "type": "boolean",
+          "description": "true = this trap fired; any fired trap kills the name (spec §4 Triage kill rule)."
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Brief evidence-grounded justification, required when fired; recommended always (use 'not evaluated — killed at Verify [S1B]' where the check never ran)."
+        }
+      },
+      "if": {
+        "properties": { "fired": { "const": true } },
+        "required": ["fired"]
+      },
+      "then": {
+        "required": ["note"]
+      },
+      "description": "One §6.4 trap check: fired flag plus justification note."
+    }
+  }
+}

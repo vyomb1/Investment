@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://investment-os.local/schemas/inbox-row.schema.json",
+  "title": "Inbox Row",
+  "description": "One captured lead entering the discovery inbox — spec §5 inbox schema: date, ticker, market, source_channel, coverage_class, one_line_mechanism, status. Capture is a ten-second act from a phone on site; capture and analysis are never the same activity. Produced by Discovery [S1A] (Lane 1 bench alerts, Lane 2 channels 1–8, Lane 3 human flow — everything enters the same inbox with its tag); consumed by /triage. Claude never originates tickers from memory: every row exists because a named stream or Vyom supplied it. See spec/investment-os-v3.2-master-spec.md §5.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "date",
+    "ticker",
+    "market",
+    "source_channel",
+    "coverage_class",
+    "one_line_mechanism",
+    "status"
+  ],
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Capture date, ISO 8601 (YYYY-MM-DD)."
+    },
+    "ticker": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Ticker as supplied by the stream (e.g. WOR, WTC, ENGN). Never originated from model memory — streams supply names (spec §5; Constitution rule 2)."
+    },
+    "market": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Listing market/exchange of the ticker (e.g. ASX, NYSE, NASDAQ)."
+    },
+    "source_channel": {
+      "$ref": "#/$defs/source_channel"
+    },
+    "coverage_class": {
+      "$ref": "#/$defs/coverage_class"
+    },
+    "one_line_mechanism": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "One line: the suspected cause of mispricing (we hunt causes, not cheapness — spec §1, §5). A capture-hygiene bound, not analysis; the full mechanism case belongs to later stages."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "triaged",
+        "killed",
+        "locked",
+        "underwriting",
+        "redteam",
+        "synthesis",
+        "logged",
+        "bench",
+        "monitoring"
+      ],
+      "description": "Pipeline position of this lead (spec §4 stages): new = captured, awaiting triage; triaged = verdict exists, routed onward; killed = kill logged with reason (kills are data for channel scoring §5 and calibration §11); locked = evidence pack locked [S3]; underwriting = at Underwrite [S4]; redteam = in adversarial passes [S5]; synthesis = with Vyom for the one-paragraph thesis [S6/S9]; logged = ledger row exists; bench = parked on the Lane 1 bench with pre-computed buy prices; monitoring = Maintenance [S16] falsifier watch."
+    }
+  },
+  "$defs": {
+    "coverage_class": {
+      "type": "string",
+      "enum": ["C0", "C1", "C2", "C3"],
+      "description": "Coverage class declared for the retrieval run (spec §2.1). C0 = user-supplied evidence set; C1 = enumerated universe (full roster/feed, every row processed); C2 = bounded-source harvest — never 'all qualifying companies'; C3 = open-web scout, non-exhaustive sample only, never proof of absence. Dynamic, blocked, paywalled, or truncated sources downgrade the class; more searching never upgrades C2/C3 to C1. All Lane-2 sweeps are C2 unless run against an enumerated feed. Shared enum — identical across all schemas in schemas/; changes only by versioned edit (spec §16)."
+    },
+    "source_channel": {
+      "type": "string",
+      "enum": [
+        "lane1_bench_alert",
+        "ch1_index_deletions",
+        "ch2_insider_clusters",
+        "ch3_capital_cycle",
+        "ch4_multiyear_lows",
+        "ch5_special_situations",
+        "ch6_filing_deltas",
+        "ch7_activist_holders",
+        "ch8_tax_loss",
+        "lane3_human",
+        "vyom_direct"
+      ],
+      "description": "Discovery stream that supplied the name (spec §5). Claude never originates tickers from memory — every lead carries this tag. lane1_bench_alert = Lane 1 bench price alert; ch1–ch8 = Lane 2 event-scanner channels (index deletions, insider clusters, capital-cycle signals, multi-year lows ∩ survivability, special situations, filing deltas, activist/substantial holders, tax-loss windows); lane3_human = Lane 3 human flow (forums supply tickers, never theses); vyom_direct = supplied directly by Vyom. Feeds quarterly channel scoring; weights may not change until four quarters of scored data exist. Shared enum — identical across all schemas in schemas/; changes only by versioned edit (spec §16)."
+    }
+  }
+}
