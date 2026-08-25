@@ -1,0 +1,29 @@
+{
+  "start": "2010-03-31",
+  "end": "2025-06-30",
+  "horizon_months": 12,
+  "benchmark_ticker": "SPY",
+  "universe": {
+    "categories": ["Domestic Common Stock", "Domestic Common Stock Primary Class"],
+    "min_price": 0.5,
+    "min_marketcap_musd": 0
+  },
+  "channel4": {
+    "low_window_years": 3,
+    "within_pct_of_low": 0.15,
+    "max_netdebt_to_trough_ocf": 3.0,
+    "min_fscore": 5,
+    "_note": "within_pct_of_low and min_fscore are spec 5 verbatim; max_netdebt_to_trough_ocf is DRAFT (spec says 'sane') - Vyom sets by versioned edit"
+  },
+  "traps": {
+    "peak_margin_multiple": 1.5,
+    "leverage_max_netdebt_to_ebitda": 4.0,
+    "ice_years_declining": 3,
+    "_note": "all three are DRAFT mechanical proxies for the 6.4 traps - Vyom sets by versioned edit; trap 4 (no unlock) is judgment and is deliberately not mechanised"
+  },
+  "delisting_terminal": "last_price",
+  "asx_leg": {
+    "status": "stub - month 2+; Norgate prices + universe membership, EODHD fundamentals with explicit reporting lags",
+    "reporting_lag_days": 75
+  }
+}
