@@ -65,7 +65,7 @@ The broker sits **outside** the system boundary. Fills come back into the ledger
 | 5 | Discovery engine (Lane 1 Bench, Lane 2 channels, Lane 3 human flow) | §5 | [`discovery/channels.md`](discovery/channels.md), `/sweep` | Engine + Vyom |
 | 6 | Analytical core (Playbooks A/B, 7 lenses, trap filters) | §6 | `/underwrite-*` skills + [`analysis/lenses.md`](analysis/lenses.md) | Vyom leads, Claude assists |
 | 7 | Adversarial architecture (blind + rebuttal) | §7 | `/redteam-blind`, `/redteam-rebuttal` | Claude, separate contexts |
-| 8 | Valuation ordering (reverse-DCF first, consensus last) | §8 | fixed sequence inside every underwrite skill | Claude computes, Vyom judges |
+| 8 | Valuation ordering (reverse-DCF first, consensus after your own read, variant thesis last) | §8 | fixed sequence inside every underwrite skill | Claude computes, Vyom judges |
 | 9 | Portfolio layer (caps, ladder, FX) | §9 | [`policy/portfolio-policy-v1.md`](policy/portfolio-policy-v1.md) | Vyom alone |
 | 10 | Records & ledger, logger separation | §10 | [`schemas/`](schemas/), [`ledger/`](ledger/), [`db/`](db/), `/log` | logger only |
 | 11 | Calibration loops | §11 | [`calibration/`](calibration/), `/calibrate` | Claude computes, Vyom judges |

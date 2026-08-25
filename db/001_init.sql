@@ -151,11 +151,11 @@ CREATE TABLE public.ledger (
   ticker          text    NOT NULL,
   date            date    NOT NULL,
   stage           text    NOT NULL,
-  route           text    NOT NULL,
+  route           text,   -- NULL only pre-triage (schema: discovery capture, verify-stage kills)
   verdict         text    NOT NULL,
-  confidence      numeric NOT NULL
+  confidence      numeric -- NULL only for pre-v3.2 backfill rows (schema: never invented after the fact)
                     CONSTRAINT ledger_confidence_0_1
-                    CHECK (confidence >= 0 AND confidence <= 1),
+                    CHECK (confidence IS NULL OR (confidence >= 0 AND confidence <= 1)),
   size_or_shadow  text    NOT NULL,
   source_channel  text    NOT NULL,
   coverage_class  text    NOT NULL
@@ -163,6 +163,7 @@ CREATE TABLE public.ledger (
                     CHECK (coverage_class IN ('C0', 'C1', 'C2', 'C3')),
   system_version  text    NOT NULL,
   next_check      date,
+  benchmark       text,   -- sleeve benchmark declared at logging time, never after (§10)
 
   -- structured JSONB groups (shapes owned by schemas/ledger-record.schema.json)
   key_evidence    jsonb   NOT NULL
@@ -178,7 +179,10 @@ CREATE TABLE public.ledger (
   outcome_marks   jsonb
                     CONSTRAINT ledger_outcome_marks_is_object
                     CHECK (outcome_marks IS NULL OR jsonb_typeof(outcome_marks) = 'object'),
-  reason_match    boolean
+  reason_match    text    NOT NULL DEFAULT 'pending'
+                    CONSTRAINT ledger_reason_match_valid
+                    CHECK (reason_match IN ('pending', 'matched', 'right_for_wrong_reason',
+                                            'failed_for_stated_reason', 'failed_for_other_reason'))
 );
 
 COMMENT ON TABLE public.ledger IS
@@ -217,10 +221,12 @@ COMMENT ON COLUMN public.ledger.skill_versions IS
   'Spec §10/§16: versions of every skill that touched this record. Loop 1 reruns on any version change.';
 COMMENT ON COLUMN public.ledger.model_ids IS
   'Spec §10/§16: model identifiers that produced this record, so outcomes are attributable across model changes.';
+COMMENT ON COLUMN public.ledger.benchmark IS
+  'Spec §10: sleeve benchmark for this entry''s outcome marks, declared at logging time — before any outcome exists, never chosen after (S&P/ASX 300 accumulation, AU sleeve; S&P 500 TR + an energy/materials index, US sleeve; money-weighted). Each mark''s benchmark_name must equal this value. NULL on non-position records.';
 COMMENT ON COLUMN public.ledger.outcome_marks IS
-  'Spec §10 outcome columns: mark at 6/12/24/36 months vs benchmark, keyed 6m/12m/24m/36m (canonical shape in schemas/ledger-record.schema.json). Benchmarks: S&P/ASX 300 accumulation (AU sleeve); S&P 500 total return + an energy/materials index (US sleeve); money-weighted. NULL until the first mark exists; later marks arrive as new rows (append-only).';
+  'Spec §10 outcome columns: mark at 6/12/24/36 months vs benchmark, keyed mark_6m/mark_12m/mark_24m/mark_36m exactly as in the canonical shape (the `outcome` object of schemas/ledger-record.schema.json, whose reason_match lives in the scalar column here). Benchmarks: S&P/ASX 300 accumulation (AU sleeve); S&P 500 total return + an energy/materials index (US sleeve); money-weighted. NULL until the first mark exists; later marks arrive as new rows (append-only).';
 COMMENT ON COLUMN public.ledger.reason_match IS
-  'Spec §10: did it succeed/fail FOR THE PRE-REGISTERED REASON? A right answer for the wrong reason scores as luck. NULL until resolved by /results.';
+  'Spec §10: did it succeed/fail FOR THE PRE-REGISTERED REASON? A right answer for the wrong reason scores as luck. Five-value vocabulary per schemas/ledger-record.schema.json (pending/matched/right_for_wrong_reason/failed_for_stated_reason/failed_for_other_reason); ''pending'' until resolved by /results.';
 
 -- ----------------------------------------------------------------------------
 -- 3. reviews — falsifier-triggered and results reviews
@@ -304,10 +310,11 @@ SELECT
   l.size_or_shadow,
   l.source_channel,
   l.coverage_class,
-  l.outcome_marks -> '6m'  AS mark_6m,
-  l.outcome_marks -> '12m' AS mark_12m,
-  l.outcome_marks -> '24m' AS mark_24m,
-  l.outcome_marks -> '36m' AS mark_36m,
+  l.benchmark,
+  l.outcome_marks -> 'mark_6m'  AS mark_6m,
+  l.outcome_marks -> 'mark_12m' AS mark_12m,
+  l.outcome_marks -> 'mark_24m' AS mark_24m,
+  l.outcome_marks -> 'mark_36m' AS mark_36m,
   l.reason_match,
   l.next_check,
   l.system_version,
@@ -424,7 +431,7 @@ COMMIT;
 --   SET ROLE logger_writer;
 --   INSERT INTO public.leads (date, ticker, market, source_channel,
 --     coverage_class, one_line_mechanism, status)
---   VALUES ('2026-08-25', 'TEST', 'ASX', 'lane3-human', 'C0',
+--   VALUES ('2026-08-25', 'TEST', 'ASX', 'lane3_human', 'C0',
 --     'smoke test row', 'new');                          -- succeeds
 --   SELECT count(*) FROM public.leads;                   -- ERROR: permission denied
 --   UPDATE public.leads SET status = 'x';                -- ERROR: permission denied
@@ -435,7 +442,7 @@ COMMIT;
 --   SELECT count(*) FROM public.leads;                   -- succeeds
 --   INSERT INTO public.leads (date, ticker, market, source_channel,
 --     coverage_class, one_line_mechanism, status)
---   VALUES ('2026-08-25', 'TEST', 'ASX', 'lane3-human', 'C0', 'x', 'new');
+--   VALUES ('2026-08-25', 'TEST', 'ASX', 'lane3_human', 'C0', 'x', 'new');
 --                                                        -- ERROR: permission denied
 --   RESET ROLE;
 --

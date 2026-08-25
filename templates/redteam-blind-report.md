@@ -17,6 +17,9 @@ This context received, in full: the locked evidence pack for {ticker} ({pack ref
 
 Supplementary primary retrieval this run: coverage class **{C1 / C2 / C3}** — {declaration}. Failed sources: {list / none} (logged, never substituted, §2.3).
 
+**Identity block restated** (Constitution 4): {company} · {ticker} · {exchange} · {security type} · {reporting currency} · price date {date} · filing date {date} · reporting period {period}.
+**Pack's own declared coverage class:** {C0–C3}.
+
 ## 2. Independent investment conclusion
 
 Formed from the pack and primary documents alone. No reconstruction of the hidden thesis; no shadow-boxing what the owner probably believes.
@@ -27,7 +30,7 @@ Formed from the pack and primary documents alone. No reconstruction of the hidde
 
 ## 3. The three most likely ways an owner loses money (ranked)
 
-§7 task, verbatim. Each path rests on a specific evidence line — a pack claim ID or a primary source found this run — with the observable that would show it happening. Generic market risk is not a loss path. No quotas (§2.5): if honest work surfaces two, report two and say so.
+§7 task, verbatim and unconditional: rank three. Each path rests on a specific evidence line — a pack claim ID or a primary source found this run — with the observable that would show it happening. Generic market risk is not a loss path. Where the third path rests on materially weaker evidence than the first two, say so explicitly rather than dressing it up.
 
 | Rank | Loss path | Evidence line it rests on (pack ID / source + as-of) | Observable that would show it happening |
 | --- | --- | --- | --- |
@@ -51,4 +54,4 @@ Borderline fact-vs-inference items for Vyom's adjudication: {list / none}
 I confirm this report was produced without sight of Vyom's thesis, the discovery transcript, or any other pipeline output for {ticker}, and that no part of it goes into the rebuttal context — the passes never see each other; only Synthesis [S6/S9] sees both (§7).
 
 **Consumed by:** Vyom and Synthesis [S6/S9]; on any missed FACT, /lock for the forced re-lock. **Never** /redteam-rebuttal.
-**Logged** via /log (`stage: redteam-blind`) per [../schemas/ledger-record.schema.json](../schemas/ledger-record.schema.json), with `system_version`, `skill_versions`, `model_ids` attached — unlogged = didn't happen (Constitution 11).
+**Logged** via /log (`stage: redteam` — pass identified by `/redteam-blind` in `skill_versions` and in the verdict text) per [../schemas/ledger-record.schema.json](../schemas/ledger-record.schema.json), with `system_version`, `skill_versions`, `model_ids` attached — unlogged = didn't happen (Constitution 11).

@@ -197,7 +197,7 @@
         "properties": {
           "axis2": { "const": "not_applicable" },
           "route": {
-            "enum": ["lens-bio", "lens-exp", "lens-ss", "lens-dx", "lens-fin", "lens-resources", "lens-tech"]
+            "enum": ["lens-bio", "lens-exp", "lens-ss", "lens-dx", "lens-fin", "lens-tech"]
           }
         }
       }

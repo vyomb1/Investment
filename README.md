@@ -8,7 +8,7 @@ A research operating system for one investor. It widens the funnel, structures e
 
 ## The loop in one paragraph
 
-Streams (never Claude's memory) supply tickers into an inbox. `/triage` verifies the trigger, routes the name (earnings power → Playbook A/B; otherwise a specialist lens), and applies the trap filters — most names die here, logged with a reason. Survivors get an evidence pack (`/lock`), an underwrite in the fixed §8 order (price-implied expectations first, consensus last), and two isolated red-team passes. Then the machine stops: Vyom writes the one-paragraph thesis and falsifiers in his own words — no paragraph, no position, not even a shadow one. The portfolio gate checks §9 caps, the logger writes the ledger row, and maintenance watches the falsifiers. Every surviving name is logged bought or not; results and calibration close the loop quarterly.
+Streams (never Claude's memory) supply tickers into an inbox. `/triage` verifies the trigger, routes the name (earnings power → Playbook A/B; otherwise a specialist lens), and applies the trap filters — most names die here, logged with a reason. Survivors get an evidence pack (`/lock`), an underwrite in the fixed §8 order (price-implied expectations first, consensus only after your own read, variant thesis last), and two isolated red-team passes. Then the machine stops: Vyom writes the one-paragraph thesis and falsifiers in his own words — no paragraph, no position, not even a shadow one. The portfolio gate checks §9 caps, the logger writes the ledger row, and maintenance watches the falsifiers. Every surviving name is logged bought or not; results and calibration close the loop quarterly.
 
 ## Getting started (cycle 1 — Minimum Viable Loop)
 

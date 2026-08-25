@@ -20,7 +20,7 @@
 
 ## Flattening rule — JSON fields → JSON strings in cells
 
-The wire format is JSON (validated against the schema in code). The sheet stores **one row per record**; scalar fields map one-to-one to columns; any field that is a JSON object or array is serialised as a **compact JSON string in a single cell**, and its column takes a `_json` suffix:
+The wire format is JSON (validated against the schema in code). The sheet stores **one row per record**; scalar fields map one-to-one to columns; any field that is a JSON object or array is serialised as a **compact JSON string in a single cell**, and its column takes a `_json` suffix — with one exception: the four outcome-mark columns keep the schema's own `mark_6m`…`mark_36m` names (no `_json` suffix), so the sheet columns read as the §10 outcome columns they are:
 
 | Schema field | CSV column | Cell content |
 | --- | --- | --- |
@@ -30,7 +30,7 @@ The wire format is JSON (validated against the schema in code). The sheet stores
 | `model_ids` | `model_ids_json` | JSON array of exact model identifiers |
 | `outcome.mark_6m` … `outcome.mark_36m` | `mark_6m` … `mark_36m` | JSON object `{position_return, benchmark_return, benchmark_name, as_of}` per mark; **blank until the mark is due** |
 | `outcome.reason_match` | `reason_match` | Enum value (`pending`, `matched`, `right_for_wrong_reason`, `failed_for_stated_reason`, `failed_for_other_reason`) |
-| — | `benchmark` | The scoring benchmark assigned to this name **at logging time**, per §10: S&P/ASX 300 accumulation (AU sleeve); S&P 500 total return + an energy/materials index (US sleeve); money-weighted. Declared before outcomes exist, never chosen after; each mark's `benchmark_name` must equal this cell. |
+| `benchmark` | `benchmark` | The scoring benchmark assigned to this name **at logging time** (optional string in the schema, one-to-one with this cell), per §10: S&P/ASX 300 accumulation (AU sleeve); S&P 500 total return + an energy/materials index (US sleeve); money-weighted. Declared before outcomes exist, never chosen after; each mark's `benchmark_name` must equal this cell. |
 
 Cells holding JSON are regenerated from the validated record — never hand-edited in place. A cell that cannot be filled truthfully is left blank / NOT FOUND; a plausible invented value is a contract violation (§2.2).
 

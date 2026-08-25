@@ -26,7 +26,7 @@ This is a working document: each section states the rule, the mechanism that enf
 | Context | Private data? | Untrusted content? | External write/execution? |
 | --- | --- | --- | --- |
 | **Research contexts** | Yes — watchlist, inbox, ledger reads (`research_ro`), read-only data keys | **Yes** — live web, filings, forums, news | **No** — read-only keys; no ledger write, no execution tools, ever |
-| **Red-team contexts** (fresh per pass) | Yes — evidence pack (pass 2: + Vyom's thesis) | **No live retrieval** — permitted inputs only (§5); pack contents remain labelled data | **No** — reports out to synthesis, nothing else |
+| **Red-team contexts** (fresh per pass) | Yes — evidence pack (pass 2: + Vyom's thesis) | **Yes** — claim-matched primary-document retrieval under §2 discipline, declared C-class; *pipeline* inputs remain restricted to the permitted list (§5) | **No** — read-only keys; reports out to synthesis, nothing else |
 | **Logger context** | Yes — insert-only ledger key (`logger_writer`) | **No** — receives human-validated JSON only; holds **no web tools** | **Yes** — but insert-only on ledger tables; the only write verb in the system |
 | **Human console (Vyom)** | Yes — everything | Yes — he reads the world | **No system-held write/execution** — validated JSON hands off to the logger; orders happen at the broker, outside the system, with credentials the system never holds |
 
@@ -40,12 +40,12 @@ Corollary flows (one-way, per [`ARCHITECTURE.md`](../ARCHITECTURE.md) §3): rese
 
 | Credential | Held by | Scope | Never touches |
 | --- | --- | --- | --- |
-| Read-only data keys (Bigdata, EODHD when subscribed; EDGAR needs none) | Research contexts | Read/retrieve only | Logger, red-team contexts |
+| Read-only data keys (Bigdata, EODHD when subscribed; EDGAR needs none) | Research contexts; red-team contexts (for supplementary primary retrieval, §5) | Read/retrieve only | Logger |
 | `research_ro` DB credential | Research contexts | SELECT only on `leads` / `ledger` / `reviews` and views | Logger (which deliberately cannot read) |
 | `logger_writer` DB credential | Logger context only | **INSERT only** on `leads` / `ledger` / `reviews` — no SELECT, no UPDATE, no DELETE | Research contexts, red-team contexts |
 | Supabase **service-role** key (and postgres owner) | **Vyom only**, outside every agent context — migrations/admin by hand | Superuser; bypasses RLS by design | **Any agent, ever** ("service-role keys never touch any agent," spec §10) |
 | **Broker credentials** | **Vyom's hands only, outside the system** | — | Anything in this repository or any agent context. The system does not know they exist. |
-| Red-team contexts | — | **Hold no keys at all**: input documents in, report out | — |
+| Red-team contexts | Read-only data keys only | Primary-document retrieval under §2 discipline; **no DB credential** (no `research_ro` — no ledger/repo browsing), no write path of any kind | — |
 
 Enforcement in the database layer: [`db/001_init.sql`](../db/001_init.sql) creates exactly two roles, **`research_ro`** (SELECT only, on all three tables and the views) and **`logger_writer`** (INSERT only; deliberately no SELECT), revokes PUBLIC and API-role grants, and adds row-level security policies so the verb separation holds even if a stray grant ever appeared. See that file's header commentary and [`db/README.md`](../db/README.md).
 
@@ -73,8 +73,8 @@ Isolation here protects epistemics (anchoring, coverage) *and* security (no accu
 
 Mechanics:
 
-1. "Fresh" means a new context with no conversation history, no memory of the name, and no keys (red-team contexts hold none — §3).
-2. Inputs are the listed documents, passed in whole; no live retrieval inside a red-team pass. Anything not on the permitted-inputs list is excluded by construction, not by asking the context to ignore it.
+1. "Fresh" means a new context with no conversation history, no memory of the name, and no credentials beyond read-only data keys (§3) — no DB credential, so it cannot browse ledger rows, triage verdicts, or underwrite drafts for the name.
+2. *Pipeline* inputs are the listed documents, passed in whole — anything not on the permitted-inputs list is excluded by construction, not by asking the context to ignore it. The context may additionally retrieve **primary documents** (filings, technical reports) itself, claim-matched under full §2 discipline with a declared coverage class — this is how a blind pass finds a missed fact (§7's ENGN mechanism; see the skills' operator checklists).
 3. Synthesis (Vyom) sees both reports. A blind-pass discovery of a missed **fact** (not opinion) forces a return to evidence lock — the ENGN rule: when fuller primary evidence defeats the framing, the system changes its mind and logs why, rather than rationalising.
 4. Pack contents inside a red-team pass remain labelled data (§2 labels ride along); a red-team context obeys §4's injection stance like every other.
 

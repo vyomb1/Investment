@@ -42,7 +42,7 @@ Mispricings have causes; we hunt causes, not cheapness (§1). This skill's job i
 
 ### Part B — Triage [S2]: route + survive kill checks
 
-5. **Confirm identity first (Constitution 4):** company, ticker, exchange, security type, reporting currency, and the as-of date — distinguishing **price date, filing date, and reporting period** explicitly. Ambiguous or wrong-entity identity (dual listings, similar tickers, renamed shells): resolve from a primary source or discard with reason "identity unresolved". Nothing downstream is safe if this step is wrong.
+5. **Confirm identity first (Constitution 4):** company, ticker, exchange, security type, reporting currency, and the as-of date — distinguishing **price date, filing date, and reporting period** explicitly. Ambiguous or wrong-entity identity (dual listings, similar tickers, renamed shells): resolve from a primary source or discard (kill_reason `other`, with "identity unresolved" spelled out in `trigger_note` — the schema's enum has no dedicated token for this case). Nothing downstream is safe if this step is wrong.
 6. **Axis 1 — the setup router (runs first):** *What carries the value here — normalised earnings power, or an asset/event/option/claim?*
    - **Earnings power** → Axis 2.
    - **Otherwise** → the matching specialist lens (§6.3), which owns method and valuation end-to-end.
@@ -57,14 +57,14 @@ Mispricings have causes; we hunt causes, not cheapness (§1). This skill's job i
    3. **Leverage mirage:** the business survives, the equity doesn't.
    4. **Value with no unlock:** no mechanism, no clock (mandatory for B), no alignment.
 10. **Balance-sheet check:** does the name fail its own balance sheet? Coarse survivability read from the latest filing — net debt vs trough cash generation, near-term maturities, covenant stress, dilution risk at the bottom (§6.2.3). Any arithmetic that matters runs in code with formulas shown (Constitution 6). Fails → kill.
-11. **Budget check:** if 15 minutes elapse without a clean route, that is a kill with reason "exceeded triage budget" — the name may re-enter later through a stream. Depth belongs to the evidence lock, not here.
+11. **Budget check:** if 15 minutes elapse without a clean route, that is a kill (kill_reason `other`, with "exceeded triage budget" spelled out in `trigger_note`) — the name may re-enter later through a stream. Depth belongs to the evidence lock, not here.
 12. **Draft the verdict JSON** (Output below). Claude drafts, Vyom skims (decision-rights table); the verdict is not final until skimmed.
 
 ## Output
 
 Verdict JSON per [`schemas/triage-verdict.schema.json`](../../../schemas/triage-verdict.schema.json):
 
-- **Route** — `A` / `B` / `Peak` (default pass) / named lens (matching the ledger's `route(A/B/Peak/lens)` field), with lens vocabulary noted where it modifies A/B, **or kill** — and *every* kill carries its reason (false trigger / tiny spread / mechanical event / identity unresolved / named trap / peak earnings / fails own balance sheet / exceeded triage budget).
+- **Route** — `A` / `B` / `Peak` (default pass) / named lens (matching the ledger's `route(A/B/Peak/lens)` field), with lens vocabulary noted where it modifies A/B, **or kill** — and *every* kill carries its reason via the schema's `kill_reason` enum (false_trigger / tiny_spread / mechanical_event / peak_earnings_cheapness / trap_melting_ice_cube / trap_leverage_mirage / trap_no_unlock / fails_own_balance_sheet / other). Cases with no dedicated token — identity unresolved, exceeded triage budget — use `other` with the reason spelled out in `trigger_note`.
 - Carried through unchanged: `source_channel`, `coverage_class`, identity block, the verified trigger with source + as-of date.
 - Every claim in the verdict labelled per §2.2; every load-bearing number with source + as-of date.
 - Every verdict — route or kill — is logged via `/log` with `system_version`, `skill_versions`, `model_ids` attached (§10). Unlogged = doesn't exist.

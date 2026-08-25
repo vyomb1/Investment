@@ -22,7 +22,7 @@ Lineage (spec §4): old S7 small-cap forensics folds into the Explorer and Speci
 - **Mode (a) inputs:** the current watchlist + new-lows list, and for each name its two most recent comparable disclosures — like-for-like pairs only (annual vs prior annual, half/quarter vs prior comparable period, guidance statement vs prior guidance). Never diff across document types to compensate for a missing side.
 - **Mode (b) inputs:** the document pair(s) /lock designates for the name under evidence lock.
 - **Identity first** (Constitution 4): company, ticker, exchange, security type, reporting currency; and for each side of every pair, filing date and reporting period distinguished explicitly (spec §2.4).
-- **Coverage class declared before research begins** (spec §2.1): mode (a) is C1 when the watchlist + new-lows roster is fully enumerated and every name's pair is processed — report universe size, filters, and failures; any blocked, paywalled, or truncated document downgrades the run to C2 and is logged. Mode (b) declares per the evidence-lock run (typically C0 for a Vyom-supplied set, else C2). More searching never upgrades C2/C3 to C1.
+- **Coverage class declared before research begins** (spec §2.1): mode (a) is C1 when the watchlist + new-lows roster is fully enumerated and every name's pair is processed — report universe size, filters, and failures; any dynamic, blocked, paywalled, or truncated document downgrades the run to C2 and is logged. Mode (b) declares per the evidence-lock run (typically C0 for a Vyom-supplied set, else C2). More searching never upgrades C2/C3 to C1.
 - **Trigger-phrase vocabulary** (one input signal set, from channel 3's Bigdata phrases): "impairment", "strategic review", "covenant waiver", "capacity closure", "suspends dividend". A phrase hit flags a passage for close reading; it is never a verdict by itself.
 
 ## Procedure
@@ -73,7 +73,7 @@ Downstream shapes: mode (a) → inbox rows per [schemas/inbox-row.schema.json](.
 ## Failure modes & refusals
 
 - **Missing prior document → NOT FOUND.** Never reconstruct the earlier language from memory — popularity-weighted recall is precisely the failure this system is built against — and never substitute a press release, summary, or search snippet for the filing: snippets locate sources, they never support load-bearing figures when the document is available (spec §2.3).
-- **Blocked/paywalled/truncated filing:** downgrade the class, log the failed source, continue with the rest of the roster. More searching never upgrades C2/C3 to C1.
+- **Dynamic/blocked/paywalled/truncated filing:** downgrade the class, log the failed source, continue with the rest of the roster. More searching never upgrades C2/C3 to C1.
 - **Boilerplate ≠ signal:** a trigger phrase present in the same generic context on both sides is not a change; only deltas are signal. Template-driven renumbering, pagination, and legal boilerplate churn are noise — say so rather than inflating findings.
 - **No quotas:** zero deltas on a name, or across the entire roster, is an acceptable, reportable outcome (spec §2.5).
 - **Mode bleed:** discovery-mode output is capture only — no valuation, routing, or thesis language in `one_line_mechanism`; evidence-mode output states deltas, not verdicts.

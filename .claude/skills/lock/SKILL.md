@@ -49,7 +49,7 @@ Evidence pack per [`schemas/evidence-pack.schema.json`](../../../schemas/evidenc
 
 - Identity block (rule 4 fields, dates distinguished).
 - Declared coverage class for the run, with any downgrades and why.
-- Evidence entries: `{id, claim, label, source, as_of}` (+ formula and input IDs for CALC; basis and sensitivity for EST; disagreement explanation for CONFLICT).
+- Evidence entries: `{id, claim, label, source, source_type, as_of}` (+ formula and input IDs for CALC; basis and sensitivity for EST; disagreement explanation for CONFLICT). `source_type` is the schema's §2.3 claim-matching category: exchange_filing / audited_report / technical_report / official_macro / market_data / management_presentation / other.
 - Retrieval log including failed sources.
 - Kill verdict if the kill rule fired, with reason.
 - **Consumed by:** `/underwrite-*`, `/redteam-blind` (pack **only** — never thesis, never discovery transcript), `/redteam-rebuttal`, synthesis. Neutral by construction.

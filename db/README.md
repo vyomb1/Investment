@@ -67,13 +67,13 @@ GRANT logger_writer TO logger;
 **Cycle 1, into the Sheet (spec §14):**
 
 1. **Pre-register MOS in the ledger** — first mandatory action, already overdue (spec §14 cycle 1; open item 1; draft awaiting sign-off at [`templates/mos-preregistration.md`](../templates/mos-preregistration.md)).
-2. **Backfill the July run as ledger rows 1–13, with 25-Aug marks** in `outcome_marks`. Each backfilled row carries its `system_version` / `skill_versions` / `model_ids` as best recorded for the July run; anything genuinely unrecoverable is logged as NOT FOUND, never reconstructed from memory.
+2. **Backfill the July run as ledger rows 1–13, with the 25-Aug baseline mark recorded as a `key_evidence` CALC entry per row** — the 6/12/24/36-month `outcome_marks` stay NULL until due (the July cohort's 6-month column lands **January 2027**, the first edge-claim test, §11). Full row-by-row contract: [`ledger/backfill-july/README.md`](../ledger/backfill-july/README.md). Each backfilled row carries its `system_version` / `skill_versions` / `model_ids` per that contract's schema-valid conventions; nothing is reconstructed from memory.
 3. Run `/results` on the WOR and WTC 26-Aug prints against their pre-registered falsifiers (85% cash conversion; ~3x leverage + FCF conversion) and log the resulting rows.
 
 **At Supabase migration (cycles 4–6), replay the Sheet through the logger:**
 
 1. Freeze the Sheet (no new rows land there once replay starts; if a cycle is mid-flight, wait for its logging-hygiene day).
-2. Insert **July rows 1–13 first, with their 25-Aug marks**, in original row order.
+2. Insert **July rows 1–13 first** (25-Aug baseline as `key_evidence` CALC entries; `outcome_marks` NULL until due), in original row order.
 3. Insert every subsequent Sheet row in logged order (append order preserved — insert order is the audit order).
 4. Reconcile: row counts match; spot-check one row per stage against the Sheet; confirm `july_workbook_export` reproduces the workbook rows.
 5. Mark the Sheet read-only and label it as archive. The July workbook is now the `july_workbook_export` view — a projection of the ledger, never a second database.

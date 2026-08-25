@@ -31,9 +31,11 @@ More searching never upgrades C2/C3 to C1. A C2/C3 pack says "found in the sourc
 
 Labels: FACT · CALC · EST · INFERENCE · NOT FOUND · CONFLICT (JSON form: `NOT_FOUND`). Every load-bearing number carries source + as-of date; time-sensitive facts tool-verified, never recalled; sources matched to claim type (§2.3 — filings/audited reports for financial facts, compliant technical reports for project facts, official/independent for macro, dated market source for prices; presentations are management claims until corroborated). CALC arithmetic runs in code (Constitution 6). NOT FOUND is a good answer — record what was sought and where; a plausible invented number is not.
 
-| ID | Claim | Label | Source | As-of | Formula (CALC) / sensitivity (EST) / conflict note (CONFLICT) |
-| --- | --- | --- | --- | --- | --- |
-| C01 | {claim} | {label} | {source} | {date} | {—} |
+| ID | Claim | Label | Source | Source type¹ | As-of | Formula (CALC) / sensitivity (EST) / conflict note (CONFLICT) |
+| --- | --- | --- | --- | --- | --- | --- |
+| C01 | {claim} | {label} | {source} | {type} | {date} | {—} |
+
+¹ §2.3 claim-matching category, per the schema: exchange_filing / audited_report / technical_report / official_macro / market_data / management_presentation / other.
 | C02 | {claim} | {label} | {source} | {date} | {—} |
 | C03 | {claim} | {label} | {source} | {date} | {—} |
 

@@ -48,6 +48,8 @@ The boundary is the §12 lethal-trifecta rule made operational: research context
    - `source_channel` and `coverage_class` carried through from the inbox row — they feed §5 channel scoring.
    - `system_version`, `skill_versions`, `model_ids`: mandatory. A record without them doesn't count (Constitution 11) and breaks §16 attribution.
    - `next_check`: the date Maintenance [S16] wakes up for this name.
+   - `outcome`: the §10 outcome-columns block, beyond the verbatim field list above — at logging time it is `{"reason_match": "pending"}` with the 6/12/24/36-month marks omitted until due (`/results` resolves them later; first 6-month column lands January 2027, §11). The schema requires it, so a record without it fails step 2.
+   - `benchmark` (optional but strongly recommended for position/shadow entries): the sleeve benchmark declared **now**, before any outcome exists — never chosen after the fact (§10 benchmarks; anti-retrofit).
 
 2. **Validate against the schema, in code.** Run the record through [`schemas/ledger-record.schema.json`](../../../schemas/ledger-record.schema.json) with a real JSON-Schema validator — not a visual once-over. A validation failure is fixed **in the record**, never by loosening the schema: the schema is policy, changed only by Vyom's versioned edit (Constitution 13, §16).
 
