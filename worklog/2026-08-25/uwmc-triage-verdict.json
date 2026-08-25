@@ -1,0 +1,39 @@
+{
+  "trigger_verified": true,
+  "trigger_note": "Dividend suspension corroborated by company IR release title and >=4 independent outlets (Yahoo Finance, Motley Fool, HousingWire, Detroit News). Q2 2026: revenue $888.0M, net loss $451.9M, adj EBITDA $185.9M, origination volume $39.7B; $2.05B equity investment by Oaktree + SFS Group Capital (Ishbia family vehicle); shares fell ~30-35% on announcement. C3 caveat: primary 8-K NOT retrieved - sec.gov egress-blocked in this environment; figures are multi-source-corroborated EST, not document-verified FACT.",
+  "axis1": "earnings_power",
+  "axis2": "depressed",
+  "route": "B",
+  "trap_filters": {
+    "peak_earnings_cheapness": {
+      "fired": false,
+      "note": "Opposite state: trough loss vs $314.5M net income in Q2 2025."
+    },
+    "melting_ice_cube": {
+      "fired": false,
+      "note": "Origination volume is rate-cyclical, not structurally obsolete; volumes recover with rate relief. To re-test at lock: broker channel share shifts."
+    },
+    "leverage_mirage": {
+      "fired": false,
+      "note": "The live question. $2.05B fresh equity materially improves survival, at heavy dilution. MSR leverage, warehouse-line covenants, and the raise's terms are the lock's first jobs - NOT FOUND at triage."
+    },
+    "no_unlock": {
+      "fired": false,
+      "note": "Mechanism: rate cycle + recapitalisation; alignment: controlling family co-invests in the raise. Clock: rough (rate path), must be sharpened at underwrite - B requires a clock."
+    }
+  },
+  "verdict": "route",
+  "confidence": 0.55,
+  "minutes_spent": 12,
+  "coverage_class": "C3",
+  "identity": {
+    "company": "UWM Holdings Corporation",
+    "ticker": "UWMC",
+    "exchange": "NYSE",
+    "security_type": "Class A common stock",
+    "reporting_currency": "USD",
+    "price_date": "2026-08-25",
+    "filing_date": "2026-08-05",
+    "reporting_period": "Q2 2026 (ended 2026-06-30)"
+  }
+}

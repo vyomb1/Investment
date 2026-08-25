@@ -1,0 +1,51 @@
+{
+  "ticker": "UWMC",
+  "date": "2026-08-25",
+  "stage": "triage",
+  "route": "B",
+  "verdict": "route -> Playbook B (reversion) with Financials-lens vocabulary; proceed to evidence lock",
+  "confidence": 0.55,
+  "key_evidence": [
+    {
+      "claim": "Board suspended the quarterly dividend subsequent to 2026-06-30 (8-K ~2026-08-05)",
+      "label": "EST",
+      "source": "Company IR release title + Yahoo Finance, Motley Fool, HousingWire, Detroit News (primary 8-K unreachable: egress block)",
+      "as_of": "2026-08-05"
+    },
+    {
+      "claim": "Q2 2026 net loss $451.9M on revenue $888.0M; adj EBITDA $185.9M; origination volume $39.7B",
+      "label": "EST",
+      "source": "Multiple independent outlets citing the results release; not document-verified",
+      "as_of": "2026-08-05"
+    },
+    {
+      "claim": "$2.05B equity capital investment by Oaktree Capital Management and SFS Group Capital LLC (Ishbia family vehicle)",
+      "label": "EST",
+      "source": "HousingWire, Detroit News, Motley Fool",
+      "as_of": "2026-08-05"
+    },
+    {
+      "claim": "Primary sources (sec.gov, efts.sec.gov, investors.uwm.com) unreachable from this research environment - coverage downgraded to C3; evidence lock blocked until an environment with primary-document access",
+      "label": "NOT_FOUND",
+      "source": "Egress proxy 403s logged this run",
+      "as_of": "2026-08-25"
+    }
+  ],
+  "falsifiers": [],
+  "size_or_shadow": "none - pre-synthesis pipeline record",
+  "source_channel": "ch3_capital_cycle",
+  "coverage_class": "C3",
+  "system_version": "3.2.0",
+  "skill_versions": {
+    "/sweep": "1.0",
+    "/triage": "1.0",
+    "/log": "1.0"
+  },
+  "model_ids": [
+    "claude-fable-5"
+  ],
+  "next_check": "2026-09-01",
+  "outcome": {
+    "reason_match": "pending"
+  }
+}

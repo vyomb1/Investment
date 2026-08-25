@@ -1,0 +1,15 @@
+date,ticker,market,source_channel,coverage_class,one_line_mechanism,status
+2026-08-25,EA,US,ch1_index_deletions,C3,Removed from S&P 500 effective 2026-08-05 (replaced by FERG) — tracker forced selling,new
+2026-08-25,GYG,ASX,ch1_index_deletions,C3,Deleted from ASX 200 in June-2026 rebalance (effective 22 Jun) — tracker forced selling,new
+2026-08-25,IEL,ASX,ch1_index_deletions,C3,Deleted from ASX 200 in June-2026 rebalance — tracker forced selling,new
+2026-08-25,SDR,ASX,ch1_index_deletions,C3,Deleted from ASX 200 in June-2026 rebalance — tracker forced selling,new
+2026-08-25,TPW,ASX,ch1_index_deletions,C3,Deleted from ASX 200 in June-2026 rebalance — tracker forced selling,new
+2026-08-25,WEB,ASX,ch1_index_deletions,C3,Deleted from ASX 200 in June-2026 rebalance — tracker forced selling,new
+2026-08-25,BHP,ASX,ch3_capital_cycle,C3,Kalgoorlie nickel smelter on care-and-maintenance since late 2024; decision on future due within ~6 months; Nickel West review to Feb-2027 — nickel supply-exit signal,new
+2026-08-25,ADIG,US,ch5_special_situations,C3,"Spun off from Resideo 2026-08-03 (pro-rata distribution) — fresh spin, non-economic seller supply",new
+2026-08-25,REZI,NYSE,ch5_special_situations,C3,Post-spin parent after ADI Global separation completed 2026-08-03,new
+2026-08-25,MFP,NASDAQ,ch5_special_situations,C3,Midera Food Processing spun off from Middleby 2026-07-06 — fresh spin,new
+2026-08-25,FDXF,NYSE,ch5_special_situations,C3,"FedEx Freight spun off from FedEx, trading since 2026-06-01 — large fresh spin",new
+2026-08-25,PCYO,US,ch7_activist_holders,C3,Maran Capital 13D/A: 14.7% stake reported,new
+2026-08-25,CELH,US,ch7_activist_holders,C3,Rockstar Energy founder Russ Savage amassed ~5% stake,new
+2026-08-25,VTGN,US,ch7_activist_holders,C3,SRX Global stake disclosed; states intent to engage board to unlock value,new
